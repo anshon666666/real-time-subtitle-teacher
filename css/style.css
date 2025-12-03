@@ -1,0 +1,706 @@
+/* ====== 簡報模式右側（複製影片模式右側樣式） ====== */
+.presentation-subtitle-panel {
+  width: 20%;
+  background-color: #333;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+}
+/* ====== 簡報模式右側控制區 ====== */
+.presentation-controls {
+  width: 20%;
+  background-color: #000;
+  color: #fff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 1em;
+}
+
+.presentation-controls-list {
+  background-color: #e6e6e6;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  min-height: 40px;
+  height: 400px;
+  color: #000;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 1em;
+  box-sizing: border-box;
+  font-size: 0.95em;
+  margin-top: 1em;
+}
+:root {
+  /* 主色系 (Primary - Indigo) */
+  --primary-color: #4F46E5;
+  --primary-hover: #4338CA;
+  --primary-active: #3730A3;
+  --primary-text: #FFFFFF;
+  --primary-subtle-bg: #EEF2FF; /* 用於標籤背景 */
+
+  /* 灰階 (Grayscale) */
+  --gray-50: #F9FAFB;
+  --gray-100: #F3F4F6;
+  --gray-200: #E5E7EB;
+  --gray-300: #D1D5DB;
+  --gray-400: #9CA3AF;
+  --gray-500: #6B7280;
+  --gray-600: #4B5563;
+  --gray-700: #374151;
+  --gray-800: #1F2937;
+  --gray-900: #111827;
+
+  /* 其他顏色 */
+  --white: #FFFFFF;
+  --black: #000000;
+  --danger-color: #EF4444; /* 紅色，用於錄音中 */
+  --success-color: #22C55E; /* 綠色，備用 */
+}
+
+/* 淺色模式 (預設) */
+body[data-theme='light'] {
+  --global-bg: var(--gray-100); /* #F3F4F6 */
+  --sidebar-bg: var(--gray-50); /* #F9FAFB */
+  --card-bg: var(--white);
+  --text-primary: var(--gray-800); /* 主要文字 */
+  --text-secondary: var(--gray-500); /* 次要文字 */
+  --border-color: var(--gray-200);
+  --border-color-heavy: var(--gray-300);
+  --shadow-color: rgba(17, 24, 39, 0.08);
+  --theater-bg: var(--gray-800); /* 劇院模式容器背景 */
+}
+
+/* 深色模式 */
+body[data-theme='dark'] {
+  --global-bg: var(--gray-900); /* #111827 */
+  --sidebar-bg: var(--gray-800); /* #1F2937 */
+  --card-bg: var(--gray-800);
+  --text-primary: var(--gray-200); /* 主要文字 */
+  --text-secondary: var(--gray-400); /* 次要文字 */
+  --border-color: var(--gray-700);
+  --border-color-heavy: var(--gray-600);
+  --shadow-color: rgba(0, 0, 0, 0.2);
+  --theater-bg: var(--black); /* 劇院模式容器背景 */
+}
+
+body {
+  margin: 0;
+  font-family: Inter, Roboto, "Noto Sans TC", "Noto Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background-color: var(--global-bg);
+  color: var(--text-primary);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ====== 左側影片選單 ====== */
+.video-list {
+  width: 20%;
+  background-color: var(--sidebar-bg);
+  color: var(--text-primary);
+  padding: 1em;
+  box-sizing: border-box;
+  border-right: 1px solid var(--border-color);
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.video-list h3 {
+  font-size: 1.2em;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5em;
+  color: var(--text-primary);
+  transition: border-color 0.3s, color 0.3s;
+}
+
+.video-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.video-list li {
+  padding: 0.5em;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.video-list li:hover {
+  background-color: var(--global-bg);
+}
+
+/* ====== 模式切換按鈕 ====== */
+.video-toggle-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  margin-bottom: 1em;
+}
+
+.video-toggle-buttons button {
+  background-color: #4F46E5; /* Primary Indigo */
+  color: #FFFFFF;
+  border: 1px solid #4F46E5;
+  padding: 0.6em 0.8em;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95em;
+  box-shadow: 0 2px 8px rgba(17, 24, 39, 0.06);
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.video-toggle-buttons button:hover {
+  background-color: #4338CA; /* Darker Indigo */
+  box-shadow: 0 3px 10px rgba(17, 24, 39, 0.12);
+}
+
+/* ====== 中間影片區 ====== */
+.video-player,
+.presentation-panel {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: transparent;
+  padding: 1em 0;
+  box-sizing: border-box;
+}
+
+.video-wrapper {
+  position: relative;
+  width: 90%;
+  padding-top: 56.25%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.video-wrapper video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #E3E8EF; /* Cool gray border */
+  border-radius: 10px;
+}
+/* ====== 即時語音區 + 工具列 ====== */
+.subtitle-panel {
+  width: 20%;
+  background-color: #FFFFFF;
+  color: #1F2937;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  border-left: 1px solid #E3E8EF;
+}
+
+.live-transcription-block {
+  padding: 0.5em 1em;
+  box-sizing: border-box;
+}
+
+.live-transcription-block h4 {
+  margin-bottom: 0.5em;
+  font-size: 1em;
+  color: #4B5563; /* Secondary text color */
+  border-bottom: 1px solid #E5E7EB;
+  padding-bottom: 0.5em;
+}
+
+/* ====== 以下為字幕與轉錄顯示 ====== */
+.live-transcription-display {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 12px;
+  border-radius: 12px;
+  min-height: 200px; /* 提升最小高度 */
+  height: calc(100% - 60px); /* 填滿剩餘高度 (扣除工具列) */
+  overflow-y: auto;
+  white-space: normal;
+  font-size: 1.3rem; /* 加大字體 */
+  line-height: 1.6;
+  box-shadow: 0 2px 8px rgba(17, 24, 39, 0.06);
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* 簡報模式下明確覆寫高度 */
+.container.presentation-mode .live-transcription-display {
+  min-height: 200px;
+  max-height: none; /* 移除最大高度限制 */
+  height: calc(100% - 60px);
+}
+.live-transcription-display > div {
+  margin: 8px 0;
+  border-bottom: 1px solid #E5E7EB;
+  padding-bottom: 8px;
+}
+.time-tag {
+  display: inline-flex;
+  align-items: center;
+  background: var(--primary-subtle-bg); /* Primary tint */
+  color: var(--primary-color);
+  border: none;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.transcript-text { margin-left: 6px; }
+
+/* 最新語音即時區 */
+.live-transcription-latest {
+  background: #FFFFFF;
+  color: #1F2937;
+  border: 1px solid #E3E8EF;
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  min-height: 28px;
+  white-space: normal;
+  font-size: 1rem;
+  line-height: 1.6;
+  box-shadow: 0 1px 6px rgba(17, 24, 39, 0.06);
+}
+
+/* ====== 語音轉錄控制 ====== */
+.stt-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.stt-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mic-select, .pdf-select {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+.mic-select {
+  max-width: 260px;
+}
+.record-btn {
+  border: 1px solid var(--primary-color);
+  background: var(--primary-color);
+  color: var(--primary-text);
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 1rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+.record-btn:hover {
+  background-color: var(--primary-hover);
+}
+.record-btn:active {
+  background-color: var(--primary-active);
+}
+.record-btn[data-state="idle"] {
+  background: var(--primary-color); /* 開始錄音：品牌紫 */
+  border-color: var(--primary-color);
+}
+@keyframes breathing {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35); }
+  50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0.12); }
+}
+.record-btn[data-state="recording"] {
+  background: var(--danger-color); /* 錄音中：紅色呼吸光 */
+  border-color: var(--danger-color);
+  animation: breathing 2s ease-in-out infinite;
+}
+/* 嵌入頁面保持在視窗內，避免背景節流與權限問題 */
+.stt-iframe {
+  width: 1px;
+  height: 1px;
+  border: 0;
+  position: fixed;
+  right: 4px;
+  bottom: 4px;
+  opacity: 0.01; /* 幾乎不可見但仍被視為在視窗中 */
+  pointer-events: none; /* 不影響操作 */
+}
+
+/* ====== 簡報模式 ====== */
+.presentation-panel {
+  display: none;
+  flex-direction: column;
+  background-color: transparent;
+  color: #1F2937;
+  padding: 1em 0;
+  width: 80%;
+  height: 100vh;
+}
+.presentation-panel .video-wrapper {
+  position: relative;
+  width: 90%;
+  padding-top: 56.25%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ====== 顯示嵌入式網站內容區域（僅簡報模式） ====== */
+.presentation-mode .stt-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.presentation-mode .embedded-stt-panel {
+  padding: 1em;
+  box-sizing: border-box;
+}
+.presentation-mode .embedded-stt-panel .stt-iframe {
+  width: 100%;
+  height: 50vh;
+  border: 1px solid #E3E8EF;
+  position: static;
+  opacity: 1;
+  pointer-events: auto;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(17, 24, 39, 0.06);
+}
+
+.presentation-panel h2 {
+  font-size: 1.2em;
+  margin-bottom: 1em;
+}
+
+.presentation-content {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  min-height: 500px;
+  border-radius: 12px;
+  padding: 1em;
+  margin-bottom: 1em;
+  box-sizing: border-box;
+  overflow: auto;
+  box-shadow: 0 2px 8px var(--shadow-color);
+  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+/* ====== 切換狀態控制 ====== */
+
+.container.presentation-mode .video-player,
+.container.presentation-mode .subtitle-panel {
+  display: none;
+}
+.container.presentation-mode .presentation-subtitle-panel {
+  display: flex;
+}
+.container.presentation-mode .presentation-controls {
+  display: flex;
+}
+
+.container.presentation-mode .presentation-panel {
+  width: 100%;
+  height: auto;
+  flex: 6 1 0;
+  display: flex;
+  padding: 0;
+}
+
+.main-column .presentation-subtitle-panel {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border-top: 1px solid var(--border-color);
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+.pdf-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.pdf-container canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 主欄垂直排列，簡報在上、轉錄在下 */
+.main-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  height: 100vh;
+}
+
+/* 覆寫簡報模式下的版面比例：簡報:轉錄=1:1（大幅增大轉錄區） */
+.container.presentation-mode .presentation-panel {
+  display: flex;
+  flex: 1; /* 佔據剩餘空間 */
+  width: 100%;
+  height: auto;
+  align-items: center;
+  background-color: #000;
+  padding: 0.5em 0;
+  overflow: hidden; /* 避免撐開 */
+}
+
+.container.presentation-mode .presentation-subtitle-panel {
+  display: flex;
+  flex: 0 0 320px; /* 固定高度 */
+  width: 100%;
+  height: 320px;
+  min-height: 320px;
+  /* 移除 overflow-y: auto，交由內部元件處理 */
+}
+
+/* PDF.js 容器填滿主欄寬度 */
+.container.presentation-mode .presentation-panel .video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding-top: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 28px;
+  grid-template-rows: 100%;
+}
+
+.pdf-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pdf-container canvas {
+  display: block;
+  box-sizing: border-box;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #E3E8EF;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(17, 24, 39, 0.06);
+}
+
+/* 左側清單縮小，僅顯示PDF名稱；下拉選單樣式 */
+/* 進一步縮減左側灰底（簡報清單）寬度與間距 */
+.container.presentation-mode .video-list {
+  width: 10%;
+  min-width: 140px;
+  padding: 0.5em;
+}
+
+
+/* 避免標題占空間過大，微調字體與間距 */
+.container.presentation-mode .video-list h3 {
+  font-size: 1em;
+  margin: 0 0 0.5em 0;
+}
+
+.video-list .pdf-select {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.video-list .pdf-select option {
+  white-space: nowrap;
+}
+
+/* PDF控制按鍵樣式 */
+.pdf-controls {
+  margin-top: 0.5em;
+}
+
+.add-pdf-btn {
+  width: 100%;
+  padding: 0.6em 0.8em;
+  border-radius: 10px;
+  border: 1px solid #4F46E5;
+  background-color: #4F46E5;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.95em;
+  box-shadow: 0 2px 8px rgba(17, 24, 39, 0.06);
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.add-pdf-btn:hover {
+  background-color: #4338CA;
+  box-shadow: 0 3px 10px rgba(17, 24, 39, 0.12);
+}
+
+.add-pdf-btn:active {
+  background-color: #3730A3;
+}
+
+/* 右側簡報頁數滑桿 */
+.page-slider-container {
+  grid-column: 2;
+  grid-row: 1;
+  width: 28px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  box-sizing: border-box;
+}
+
+.page-slider {
+  -webkit-appearance: slider-vertical;
+  appearance: slider-vertical;
+  writing-mode: bt-lr; /* 垂直滑桿基礎 */
+  width: 24px;
+  height: 100%;
+  background: transparent;
+  transform: rotate(180deg); /* 讓頂端為最小值(第一頁)，由上往下增加 */
+}
+
+.page-slider::-webkit-slider-runnable-track {
+  background: #CBD5E1; /* Cool gray track */
+}
+
+.page-slider::-webkit-slider-thumb {
+  background: #4F46E5; /* Primary */
+  border: 2px solid #FFFFFF;
+}
+
+.page-arrow {
+  background: #4F46E5;
+  color: #fff;
+  border-radius: 8px;
+}
+
+.page-arrow:hover {
+  background: #4338CA;
+}
+
+/* ====== 劇院模式容器 ====== */
+.theater-container {
+  width: 96%; /* 增加寬度以模擬 90% 縮放效果 */
+  background-color: var(--theater-bg);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 8px 20px var(--shadow-color);
+  margin: 0 auto;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+.theater-container .video-wrapper {
+  width: 100%;
+}
+
+/* 調整簡報寬度為 80% 並移除黑底 */
+.presentation-panel {
+  width: 80%;
+  background-color: transparent;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-primary);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.container.presentation-mode .video-list {
+  width: 10%;
+  min-width: 140px;
+  padding: 0.5em;
+  background-color: var(--sidebar-bg);
+}
+
+/* Warning message styling */
+.warning-message {
+    color: #b58900; /* Solarized Yellow */
+    font-weight: bold;
+}
+
+/* Theme Switch */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.theme-switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #4F46E5;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #4F46E5;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.theme-switch-wrapper span {
+    margin-left: 10px;
+    font-size: 1rem;
+}

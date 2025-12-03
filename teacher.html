@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>即時語音轉錄 - 教師端（僅簡報）</title>
+	<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+	<div class="container presentation-mode">
+
+		<!-- 左側：簡報清單（改為下拉式） -->
+		<div class="video-list">
+			<div id="presentationListBlock">
+				<h3>簡報清單</h3>
+				<label for="pdfSelect" class="visually-hidden">選擇簡報</label>
+				<select id="pdfSelect" class="pdf-select">
+					<option value="0">模擬實驗架構(聽障生)-更.pdf</option>
+					<option value="1">0818實驗情形講解.pdf</option>
+				</select>
+				<div class="pdf-controls">
+					<button id="addPdfBtn" class="add-pdf-btn">+ 新增PDF</button>
+					<input type="file" id="pdfFileInput" accept=".pdf" style="display: none;" />
+				</div>
+			</div>
+		</div>
+
+		<!-- 主欄：簡報在上，轉錄在下 -->
+		<div class="main-column">
+			<!-- 上方：簡報顯示區（PDF.js 渲染容器） -->
+			<div class="presentation-panel">
+				<div class="theater-container">
+					<div class="video-wrapper" id="presentationWrapper">
+						<div id="pdfContainer" class="pdf-container"></div>
+						<div id="pageSliderContainer" class="page-slider-container">
+							<button id="pageArrowUp" class="page-arrow" aria-label="上一頁">▲</button>
+							<input type="range" id="pageSlider" class="page-slider" min="1" step="1" value="1" aria-label="簡報頁數滑桿" />
+							<button id="pageArrowDown" class="page-arrow" aria-label="下一頁">▼</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 下方：即時語音（僅簡報） -->
+			<div class="presentation-subtitle-panel">
+				<div class="stt-panels">
+					<div class="live-transcription-block local-stt-panel">
+          <div class="stt-toolbar">
+            <h4>🎤 本地語音轉錄</h4>
+            <div class="stt-controls">
+              <div class="theme-switch-wrapper">
+                <label class="theme-switch" for="theme-switch-checkbox">
+                  <input type="checkbox" id="theme-switch-checkbox" />
+                  <div class="slider round"></div>
+                </label>
+                <span>深色模式</span>
+              </div>
+              <select id="micSelect" class="mic-select"></select>
+              <button id="recordBtn" class="record-btn" data-state="idle">開始錄音</button>
+            </div>
+          </div>
+          <div id="liveTranscription_latest" class="live-transcription-latest" aria-live="polite" aria-atomic="true"></div>
+          <div id="liveTranscription_presentation" class="live-transcription-display"></div>
+        </div>
+        <div class="live-transcription-block remote-stt-panel">
+          <div class="stt-toolbar">
+            <h4>🌐 嵌入式語音轉錄</h4>
+          </div>
++         <div id="remoteSttStatus" class="stt-status" aria-live="polite">🌐 正在連線遠端…</div>
+          <iframe id="sttIframe" src="https://avatarai.tplinkdns.com:9000/" class="stt-iframe" allow="microphone; autoplay; clipboard-read; clipboard-write" style="width:100%; height:260px; border:1px solid #ccc; border-radius:6px;"></iframe>
+        </div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- JS：PDF.js 與簡報 -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+	<script src="js/presentation.js"></script>
+	<script src="js/theme.js"></script>
+</body>
+</html>
