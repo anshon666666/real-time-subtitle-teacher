@@ -9,9 +9,9 @@
 <body>
 	<div class="container presentation-mode">
 
-		<!-- 左側：簡報清單（改為下拉式） -->
 		<div class="video-list">
-			<div id="presentationListBlock">
+			
+			<div id="presentationListBlock" class="sidebar-section top-section">
 				<h3>簡報清單</h3>
 				<label for="pdfSelect" class="visually-hidden">選擇簡報</label>
 				<select id="pdfSelect" class="pdf-select">
@@ -23,11 +23,37 @@
 					<input type="file" id="pdfFileInput" accept=".pdf" style="display: none;" />
 				</div>
 			</div>
+
+			<div class="sidebar-section middle-section">
+				<hr class="sidebar-divider" />
+				
+				<h4>🎤 本地語音轉錄</h4>
+				
+				<div class="controls-wrapper">
+					<div class="theme-switch-wrapper">
+						<label class="theme-switch" for="theme-switch-checkbox">
+							<input type="checkbox" id="theme-switch-checkbox" />
+							<div class="slider round"></div>
+						</label>
+						<span>深色模式</span>
+					</div>
+
+					<div class="control-group">
+						<select id="micSelect" class="mic-select"></select>
+					</div>
+
+					<button id="recordBtn" class="record-btn" data-state="idle">開始錄音</button>
+				</div>
+			</div>
+
+			<div class="sidebar-section bottom-section">
+				<div class="latest-label">正在接收...</div>
+				<div id="liveTranscription_latest" class="live-transcription-latest" aria-live="polite" aria-atomic="true"></div>
+			</div>
+
 		</div>
 
-		<!-- 主欄：簡報在上，轉錄在下 -->
 		<div class="main-column">
-			<!-- 上方：簡報顯示區（PDF.js 渲染容器） -->
 			<div class="presentation-panel">
 				<div class="theater-container">
 					<div class="video-wrapper" id="presentationWrapper">
@@ -41,40 +67,18 @@
 				</div>
 			</div>
 
-			<!-- 下方：即時語音（僅簡報） -->
 			<div class="presentation-subtitle-panel">
-				<div class="stt-panels">
-					<div class="live-transcription-block local-stt-panel">
-          <div class="stt-toolbar">
-            <h4>🎤 本地語音轉錄</h4>
-            <div class="stt-controls">
-              <div class="theme-switch-wrapper">
-                <label class="theme-switch" for="theme-switch-checkbox">
-                  <input type="checkbox" id="theme-switch-checkbox" />
-                  <div class="slider round"></div>
-                </label>
-                <span>深色模式</span>
-              </div>
-              <select id="micSelect" class="mic-select"></select>
-              <button id="recordBtn" class="record-btn" data-state="idle">開始錄音</button>
-            </div>
-          </div>
-          <div id="liveTranscription_latest" class="live-transcription-latest" aria-live="polite" aria-atomic="true"></div>
-          <div id="liveTranscription_presentation" class="live-transcription-display"></div>
-        </div>
-        <div class="live-transcription-block remote-stt-panel">
-          <div class="stt-toolbar">
-            <h4>🌐 嵌入式語音轉錄</h4>
-          </div>
-+         <div id="remoteSttStatus" class="stt-status" aria-live="polite">🌐 正在連線遠端…</div>
-          <iframe id="sttIframe" src="https://avatarai.tplinkdns.com:9000/" class="stt-iframe" allow="microphone; autoplay; clipboard-read; clipboard-write" style="width:100%; height:260px; border:1px solid #ccc; border-radius:6px;"></iframe>
-        </div>
+				<div id="remoteSttStatus" class="stt-status" aria-live="polite" style="display:none;"></div>
+
+				<div id="liveTranscription_presentation" class="live-transcription-display"></div>
+				
+				<div class="live-transcription-block remote-stt-panel" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; opacity: 0;">
+					<iframe id="sttIframe" src="https://avatarai.tplinkdns.com:9000/" class="stt-iframe" allow="microphone; autoplay; clipboard-read; clipboard-write"></iframe>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<!-- JS：PDF.js 與簡報 -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 	<script src="js/presentation.js"></script>
 	<script src="js/theme.js"></script>
