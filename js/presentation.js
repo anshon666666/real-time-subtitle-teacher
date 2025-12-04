@@ -58,9 +58,7 @@ function loadStoredPdfs(pdfFilesRef, pdfSelectEl) {
 function scrollToBottom() {
   const el = document.getElementById("liveTranscription_presentation");
   if (el) {
-    // 立即捲動
     el.scrollTop = el.scrollHeight;
-    // 延遲捲動確保渲染完成
     requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
   }
 }
@@ -108,7 +106,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let lastActivityTime = 0;
   const REMOTE_START_TIMEOUT_MS = 3000;
   
-  // 新增：強制斷句變數
+  // 強制斷句變數
   let forcedSegmentationSec = 8; 
   let currentInterimStartTs = 0;
 
@@ -256,9 +254,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const INTERIM_COMMIT_MS = 3000;
   const INTERIM_COMMIT_DELTA = 8;
   const INTERIM_COMMIT_PUNCT = /[，。；、！？,.!?]$/;
-  const MIN_WORD_COUNT = 3;
-  const MIN_CHAR_COUNT = 4;
-  const MIN_FINAL_COMMIT_CHARS = 2;
+  
+  // 修改：設為 0 以防吞字
+  const MIN_WORD_COUNT = 0;
+  const MIN_CHAR_COUNT = 0;
+  const MIN_FINAL_COMMIT_CHARS = 0;
+  
   let textHistory = new Set();
   const MAX_HISTORY_SIZE = 20;
 
@@ -275,7 +276,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     scrollLatestToBottom(); // 自動捲動暫存框
   }
 
-  // 修改：加入強制斷句邏輯
+  // 修改：強制斷句邏輯 & 移除吞字檢查
   function accumulateInterim(text) {
     const raw = (text || "").toString();
     const hasLongTrailingSpace = /\s{3,}$/.test(raw);
@@ -288,14 +289,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       return; 
     }
 
-    // 檢查最小字數和字符數要求
-    const wordCount = trimmed.split(/\s+/).length;
-    const charCount = trimmed.length;
-    
-    // 若太短，僅更新但不處理斷句邏輯
-    if (wordCount < MIN_WORD_COUNT && charCount < MIN_CHAR_COUNT && !INTERIM_COMMIT_PUNCT.test(trimmed)) {
-      updateLatest(trimmed); return;
-    }
+    // 移除：字數過少不處理的檢查
+    // 確保即使是單字也能進入後續邏輯
 
     // === 強制斷句計時開始 ===
     if (currentInterimStartTs === 0) {
@@ -328,9 +323,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (INTERIM_COMMIT_PUNCT.test(trimmed)) shouldCommit = true;
     else if (norm.length >= INTERIM_COMMIT_LEN) shouldCommit = true;
     else if (sinceLastCommit >= INTERIM_COMMIT_MS && Math.abs(norm.length - (lastCommittedNorm ? lastCommittedNorm.length : 0)) >= INTERIM_COMMIT_DELTA) {
-      if (wordCount >= MIN_WORD_COUNT || charCount >= MIN_CHAR_COUNT) shouldCommit = true;
+      // 移除字數限制
+      shouldCommit = true;
     }
-    if (hasLongTrailingSpace && (wordCount >= MIN_WORD_COUNT || charCount >= MIN_CHAR_COUNT)) shouldCommit = true;
+    if (hasLongTrailingSpace) shouldCommit = true;
 
     if (shouldCommit && norm && norm !== lastCommittedNorm) {
       appendTranscript(trimmed);
@@ -372,9 +368,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!el) return;
     const trimmed = (text || "").toString().trim();
     if (!trimmed) return;
-    if (trimmed.length < MIN_FINAL_COMMIT_CHARS && !INTERIM_COMMIT_PUNCT.test(trimmed)) {
-      updateLatest(trimmed); return;
-    }
+    
+    // 移除：字數過少不落盤的檢查
     
     const norm = normalizeText(trimmed);
     if (norm === lastCommittedNorm || textHistory.has(norm)) {
@@ -576,7 +571,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // 封裝本地錄音啟動邏輯，方便重用
+  // 封裝本地錄音啟動邏輯
   function startLocalRecording() {
      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
      if (!SR) {
@@ -592,6 +587,7 @@ document.addEventListener("DOMContentLoaded", async () => {
      lastPhraseEndSec = 0;
      interimBuffer = ""; lastCommittedText = ""; lastCommittedNorm = "";
      interimLastCommitMs = performance.now();
+     currentInterimStartTs = 0; // 重置強制斷句計時
      updateLatest("");
      
      try {
@@ -623,7 +619,8 @@ document.addEventListener("DOMContentLoaded", async () => {
          sr.onend = () => {
            const latestEl = document.getElementById("liveTranscription_latest");
            const latestText = latestEl ? latestEl.textContent.trim() : "";
-           if (latestText && latestText.length >= MIN_FINAL_COMMIT_CHARS) { appendTranscript(latestText); updateLatest(""); }
+           // 長度檢查已移除，確保不吞字
+           if (latestText) { appendTranscript(latestText); updateLatest(""); }
            if (srActive && isRecording) {
              setTimeout(() => {
                if (srActive && isRecording) {
