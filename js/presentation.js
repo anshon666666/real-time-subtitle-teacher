@@ -108,6 +108,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   let lastActivityTime = 0;
   const REMOTE_START_TIMEOUT_MS = 3000;
   
+  // 新增：強制斷句變數
+  let forcedSegmentationSec = 8; 
+  let currentInterimStartTs = 0;
+
+  // 綁定強制斷句滑桿
+  const segSlider = document.getElementById("segmentationSlider");
+  const segValue = document.getElementById("segmentationValue");
+  if (segSlider && segValue) {
+    segSlider.addEventListener("input", (e) => {
+      forcedSegmentationSec = parseInt(e.target.value, 10);
+      segValue.textContent = forcedSegmentationSec;
+    });
+  }
+  
   const STT_ORIGIN = (function(){
     try { return new URL(sttIframe?.src || "https://avatarai.tplinkdns.com:9000/").origin; }
     catch { return "https://avatarai.tplinkdns.com:9000"; }
@@ -261,17 +275,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     scrollLatestToBottom(); // 自動捲動暫存框
   }
 
+  // 修改：加入強制斷句邏輯
   function accumulateInterim(text) {
     const raw = (text || "").toString();
     const hasLongTrailingSpace = /\s{3,}$/.test(raw);
     const trimmed = raw.trim();
-    if (!trimmed) { updateLatest(""); return; }
+    
+    // 若無內容，重置計時器
+    if (!trimmed) { 
+      updateLatest(""); 
+      currentInterimStartTs = 0;
+      return; 
+    }
 
+    // 檢查最小字數和字符數要求
     const wordCount = trimmed.split(/\s+/).length;
     const charCount = trimmed.length;
     
+    // 若太短，僅更新但不處理斷句邏輯
     if (wordCount < MIN_WORD_COUNT && charCount < MIN_CHAR_COUNT && !INTERIM_COMMIT_PUNCT.test(trimmed)) {
       updateLatest(trimmed); return;
+    }
+
+    // === 強制斷句計時開始 ===
+    if (currentInterimStartTs === 0) {
+      currentInterimStartTs = Date.now();
     }
 
     updateLatest(trimmed);
@@ -279,8 +307,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     const now = performance.now();
     const norm = normalizeText(trimmed);
     const sinceLastCommit = now - (interimLastCommitMs || 0);
-    let shouldCommit = false;
+    
+    // === 檢查是否觸發強制斷句 ===
+    const interimDuration = Date.now() - currentInterimStartTs;
+    if (interimDuration > forcedSegmentationSec * 1000) {
+        console.log(`⏱️ 強制斷句觸發 (超過 ${forcedSegmentationSec} 秒)`);
+        appendTranscript(trimmed);
+        updateLatest("");
+        currentInterimStartTs = 0;
+        interimBuffer = "";
+        // 強制停止並重啟 SR，這是最乾淨的斷句方式
+        if (sr && srActive) {
+            try { sr.stop(); } catch(e) { console.warn("Force stop failed", e); }
+        }
+        return;
+    }
 
+    // 原有的自動斷句邏輯 (標點、長度、停頓)
+    let shouldCommit = false;
     if (INTERIM_COMMIT_PUNCT.test(trimmed)) shouldCommit = true;
     else if (norm.length >= INTERIM_COMMIT_LEN) shouldCommit = true;
     else if (sinceLastCommit >= INTERIM_COMMIT_MS && Math.abs(norm.length - (lastCommittedNorm ? lastCommittedNorm.length : 0)) >= INTERIM_COMMIT_DELTA) {
@@ -295,6 +339,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       lastCommittedText = trimmed;
       lastCommittedNorm = norm;
       updateLatest("");
+      currentInterimStartTs = 0; // 落盤後重置計時
     } else {
       interimBuffer = norm;
     }
@@ -369,6 +414,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     interimLastCommitMs = performance.now();
     interimBuffer = "";
     updateLatest("");
+    
+    // 落盤後確保計時器重置
+    currentInterimStartTs = 0;
   }
 
   // STT Messaging
